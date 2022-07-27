@@ -6,7 +6,7 @@ The SR-IOV Network Metrics Exporter is designed with the Kubernetes SR-IOV stack
 **This software is a pre-production alpha version and should not be deployed to production servers.**
 
 ## Hardware support
-The default netlink implementation for Virtual Function telemetry relies on driver support and a kernel version of 4.4 or higher. This version requires i40e driver of 2.11+ for Intel® 700 series NICs. Updated i40e drivers can be fould at the [Intel Download Center](https://downloadcenter.intel.com/download/24411/Intel-Network-Adapter-Driver-for-PCIe-40-Gigabit-Ethernet-Network-Connections-under-Linux-?v=t)
+The default netlink implementation for Virtual Function telemetry relies on driver support and a kernel version of 4.4 or higher. This version requires i40e driver of 2.11+ for Intel® 700 series NICs and ice driver for Intel® 800 series NICs. Updated i40e drivers can be found at the [Intel Download Center](https://downloadcenter.intel.com/download/24411/Intel-Network-Adapter-Driver-for-PCIe-40-Gigabit-Ethernet-Network-Connections-under-Linux-?v=t). The updated ice driver can be found [here](https://www.intel.com/content/www/us/en/download/19630/intel-network-adapter-driver-for-e810-series-devices-under-linux.html?wapkw=ice%20driver).
 
 For kernels older than 4.4 a driver specific collector is enabled which is compatible with Intel® 700 series NICs using and i40e driver of 2.11 or above. To check your current driver version run: ``modinfo i40e | grep ^version``
 To upgrade visit the [official driver download site](https://downloadcenter.intel.com/download/24411/Intel-Network-Adapter-Driver-for-PCIe-40-Gigabit-Ethernet-Network-Connections-Under-Linux-).
