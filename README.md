@@ -7,10 +7,12 @@ The SR-IOV Network Metrics Exporter is designed with the Kubernetes SR-IOV stack
 
 ## Hardware support
 The sysfs collector for Virtual Function telemetry supports NICs with drivers that implement the SR-IOV sysfs management interface e.g. i40e, mlnx_en and mlnx_ofed.
-The netlink collector relies on driver support and a kernel version of 4.4 or higher. This version requires i40e driver of 2.11+ for Intel® 700 series NICs and ice driver 1.2+ for Intel® 800 series NICs.
 
-To check your current driver version run: `modinfo <driver> | grep ^version` where driver is `i40e` or `ice`
-i40e drivers: [Intel Download Center](https://downloadcenter.intel.com/download/18026/), [Source Forge](https://sourceforge.net/projects/e1000/files/i40e%20stable/)
+The netlink collector relies on driver support and a kernel version of 4.4 or higher.
+To support netlink, we recommend these driver versions: i40e driver of 2.11+ for Intel® 700 series NICs and ice driver 1.2+ for Intel® 800 series NICs.
+
+To check your current driver version run: `modinfo <driver> | grep ^version` where driver is `i40e` or `ice`\
+i40e drivers: [Intel Download Center](https://downloadcenter.intel.com/download/18026/), [Source Forge](https://sourceforge.net/projects/e1000/files/i40e%20stable/)\
 ice drivers: [Intel Download Center](https://www.intel.com/content/www/us/en/download/19630/), [Sorce Forge](https://sourceforge.net/projects/e1000/files/ice%20stable/)
 
 ## Metrics
@@ -146,7 +148,7 @@ The above should be added to the Prometheus configuration as a new target. For m
 ### Configuration
 A number of configuration flags can be passed to the SR-IOV Network Metrics Exporter in order to change enabled collectors, the paths it reads from and some properties of its web endpoint.
 
-The collector.vfstatspriority flag defines the priority of vf stats collectors, each pf will use the first supported collector in the list.
+The collector.vfstatspriority flag defines the priority of vf stats collectors, each pf will use the first supported collector in the list.\
 Example: using the priority, "sysfs,netlink", with Intel® 700 and 800 series NICs installed and vfs initialized, the sysfs collector will be used for the 700 series NIC, and netlink for the 800 series NIC since it doesn't support sysfs collection, therefore it falls back to the netlink driver.
 
 | Flag | Type | Description | Default Value |
