@@ -23,7 +23,7 @@ import (
 var (
 	defaultPodResourcesMaxSize = 1024 * 1024 * 16 // 16 Mb
 	podDevLinkName             = "kubepoddevice"
-	podResourcesPath           = flag.String("path.kubeletSocket", "/var/lib/kubelet/pod-resources/kubelet.sock", "Path to kubelet resources socket")
+	podResourcesPath           = flag.String("path.kubeletsocket", "/var/lib/kubelet/pod-resources/kubelet.sock", "Path to kubelet resources socket")
 	pciAddressPattern          = regexp.MustCompile(`^[[:xdigit:]]{4}:([[:xdigit:]]{2}):([[:xdigit:]]{2})\.([[:xdigit:]])$`)
 )
 

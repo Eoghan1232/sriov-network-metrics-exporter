@@ -6,11 +6,12 @@ The SR-IOV Network Metrics Exporter is designed with the Kubernetes SR-IOV stack
 **This software is a pre-production alpha version and should not be deployed to production servers.**
 
 ## Hardware support
-The default netlink implementation for Virtual Function telemetry relies on driver support and a kernel version of 4.4 or higher. This version requires i40e driver of 2.11+ for Intel® 700 series NICs and ice driver for Intel® 800 series NICs. Updated i40e drivers can be found at the [Intel Download Center](https://downloadcenter.intel.com/download/24411/Intel-Network-Adapter-Driver-for-PCIe-40-Gigabit-Ethernet-Network-Connections-under-Linux-?v=t). The updated ice driver can be found [here](https://www.intel.com/content/www/us/en/download/19630/intel-network-adapter-driver-for-e810-series-devices-under-linux.html?wapkw=ice%20driver).
+The sysfs collector for Virtual Function telemetry supports NICs with drivers that implement the SR-IOV sysfs management interface e.g. i40e, mlnx_en and mlnx_ofed.
+The netlink collector relies on driver support and a kernel version of 4.4 or higher. This version requires i40e driver of 2.11+ for Intel® 700 series NICs and ice driver 1.2+ for Intel® 800 series NICs.
 
-For kernels older than 4.4 a driver specific collector is enabled which is compatible with Intel® 700 series NICs using and i40e driver of 2.11 or above. To check your current driver version run: ``modinfo i40e | grep ^version``
-To upgrade visit the [official driver download site](https://downloadcenter.intel.com/download/24411/Intel-Network-Adapter-Driver-for-PCIe-40-Gigabit-Ethernet-Network-Connections-Under-Linux-).
-To use this version the flag collector.netlink must be set to "false".
+To check your current driver version run: `modinfo <driver> | grep ^version` where driver is `i40e` or `ice`
+i40e drivers: [Intel Download Center](https://downloadcenter.intel.com/download/18026/), [Source Forge](https://sourceforge.net/projects/e1000/files/i40e%20stable/)
+ice drivers: [Intel Download Center](https://www.intel.com/content/www/us/en/download/19630/), [Sorce Forge](https://sourceforge.net/projects/e1000/files/ice%20stable/)
 
 ## Metrics
 This exporter will make the following metrics available:
@@ -145,21 +146,25 @@ The above should be added to the Prometheus configuration as a new target. For m
 ### Configuration
 A number of configuration flags can be passed to the SR-IOV Network Metrics Exporter in order to change enabled collectors, the paths it reads from and some properties of its web endpoint.
 
+The collector.vfstatspriority flag defines the priority of vf stats collectors, each pf will use the first supported collector in the list.
+Example: using the priority, "sysfs,netlink", with Intel® 700 and 800 series NICs installed and vfs initialized, the sysfs collector will be used for the 700 series NIC, and netlink for the 800 series NIC since it doesn't support sysfs collection, therefore it falls back to the netlink driver.
+
 | Flag | Type | Description | Default Value |
 |----|:----|:----|:----|
 | collector.kubepodcpu | boolean | Enables the kubepodcpu collector | false |
 | collector.kubepoddevice | boolean | Enables the kubepoddevice collector | false |
-| collector.vfstats | boolean |Enables the vfstats collector |  true |
-| collector.netlink | boolean |Enables using netlink for vfstats collection |  true |
+| collector.vfstatspriority | string | Sets the priority of vfstats collectors | sysfs,netlink |
+| collector.sysfs | boolean | Enables using sr-iov sysfs for vfstats collection | true |
+| collector.netlink | boolean | Enables using netlink for vfstats collection | true |
 | path.cpucheckpoint | string | Path for location of cpu manager checkpoint file | /var/lib/kubelet/cpu_manager_state |
-| path.kubecgroup |string | Path for location of kubernetes cgroups on the host system | /sys/fs/cgroup/cpuset/kubepods/|
-| path.kubeletSocket | string | Path to kubelet resources socket | /var/lib/kubelet/pod-resources/kubelet.sock |
+| path.kubecgroup |string | Path for location of kubernetes cgroups on the host system | /sys/fs/cgroup/cpuset/kubepods/ |
+| path.kubeletsocket | string | Path to kubelet resources socket | /var/lib/kubelet/pod-resources/kubelet.sock |
 | path.nodecpuinfo | string | Path for location of system cpu information | /sys/devices/system/node/ |
 | path.sysbuspci | string | Path to sys/bus/pci on host | /sys/bus/pci/devices |
 | path.sysclassnet | string | Path to sys/class/net on host | /sys/class/net/ |
-| web.listen-address | string | Address to listen on for web interface and telemetry. | :9808 |
-| web.rate-burst | int | Maximum per second burst rate for requests. | 10 |
-| web.rate-limit | int | Limit for requests per second. | 1 |
+| web.listen-address | string | Address to listen on for web interface and telemetry | :9808 |
+| web.rate-burst | int | Maximum per second burst rate for requests | 10 |
+| web.rate-limit | int | Limit for requests per second | 1 |
 
 ## Communication and contribution
 

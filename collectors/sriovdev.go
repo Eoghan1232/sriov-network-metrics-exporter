@@ -22,17 +22,19 @@ const (
 )
 
 var (
-	sysBusPci             = flag.String("path.sysbuspci", "/sys/bus/pci/devices", "Path to sys/bus/pci on host")
-	sysClassNet           = flag.String("path.sysclassnet", "/sys/class/net/", "Path to sys/class/net on host")
-	netlinkEnabled        = flag.Bool("collector.netlink", true, "Enable or disable use of netlink for VF stats collection in favor of driver specific collectors.")
-	totalVfFile           = "sriov_totalvfs"
-	pfNameFile            = "/net"
-	netClassFile          = "/class"
-	driverFile            = "/driver"
-	netClass        int64 = 0x020000
-	vfStatSubsystem       = "vf"
-	sriovDev              = "vfstats"
-	sriovPFs              = make([]string, 0)
+	collectorPriority utils.StringListFlag
+	defaultPriority         = utils.StringListFlag{"sysfs", "netlink"}
+	sysfsEnabled            = flag.Bool("collector.sysfs", enabled, "Enable or disable use of sriov sysfs interface for VF stats collection.")
+	netlinkEnabled          = flag.Bool("collector.netlink", enabled, "Enable or disable use of netlink for VF stats collection.")
+	sysBusPci               = flag.String("path.sysbuspci", "/sys/bus/pci/devices/", "Path to sys/bus/pci/devices/ on host")
+	sysClassNet             = flag.String("path.sysclassnet", "/sys/class/net/", "Path to sys/class/net/ on host")
+	totalVfFile             = "sriov_totalvfs"
+	pfNameFile              = "/net"
+	netClassFile            = "/class"
+	netClass          int64 = 0x020000
+	vfStatSubsystem         = "vf"
+	sriovDev                = "vfstats"
+	sriovPFs                = make([]string, 0)
 )
 
 //vfList contains a list of addresses for VFs with the name of the physical interface as value
@@ -40,6 +42,7 @@ type vfWithRoot map[string]string
 
 //init runs the registration for this collector on package import
 func init() {
+	flag.Var(&collectorPriority, "collector.vfstatspriority", "Priority of collectors")
 	register(sriovDev, enabled, createSriovdevCollector)
 }
 
@@ -85,6 +88,16 @@ func sriovNumaNodes(pfList []string) map[string]string {
 
 //Collect runs the appropriate collector for each SR-IOV vf on the system and publishes its statistics.
 func (c sriovdevCollector) Collect(ch chan<- prometheus.Metric) {
+	log.Printf("collecting sr-iov device metrics")
+
+	priority := collectorPriority
+	if len(priority) == 0 {
+		log.Printf("collector.priority not specified in flags, using default priority")
+		priority = defaultPriority
+	}
+
+	log.Printf("collector priority: '%s'", priority)
+
 	for pfAddr, numaNode := range c.pfWithNuma {
 		pfName := getPFName(pfAddr)
 		if pfName == "" {
@@ -92,7 +105,7 @@ func (c sriovdevCollector) Collect(ch chan<- prometheus.Metric) {
 		}
 		// appropriate reader for VF is returned based on the PF.
 		//This reader may also be the moment for reading the stats from each device as in the netlink reader.
-		reader := statReaderForPF(pfName)
+		reader := statReaderForPF(pfName, priority)
 		if reader == nil {
 			continue
 		}

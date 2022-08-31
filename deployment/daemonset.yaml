@@ -17,14 +17,18 @@ spec:
         app.kubernetes.io/name: sriov-metrics-exporter
         app.kubernetes.io/version: v0.0.1
     spec:
+      hostNetwork: true
       containers:
       - args:
         - --path.kubecgroup=/host/kubecgroup
         - --path.sysbuspci=/host/sys/bus/pci/devices/
-        - --path.sysclassnet=/host/sys/class/net
+        - --path.sysclassnet=/host/sys/class/net/
         - --path.cpucheckpoint=/host/cpu_manager_state
-        - --path.kubeletSocket=/host/kubelet.sock
+        - --path.kubeletsocket=/host/kubelet.sock
         - --collector.kubepoddevice=true
+        - --collector.sysfs=true
+        - --collector.netlink=true
+        - --collector.vfstatspriority=sysfs,netlink
         image: localhost:5000/sriov-metrics-exporter
         imagePullPolicy: Always 
         name: sriov-metrics-exporter
