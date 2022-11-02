@@ -91,7 +91,7 @@ func limitRequests(next http.Handler, rateLimit rate.Limit, burstLimit int) http
 	limiter := rate.NewLimiter(rateLimit, burstLimit)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if !limiter.Allow() {
-			http.Error(w, http.StatusText(429), http.StatusTooManyRequests)
+			http.Error(w, http.StatusText(http.StatusTooManyRequests), http.StatusTooManyRequests)
 			return
 		}
 		next.ServeHTTP(w, r)
