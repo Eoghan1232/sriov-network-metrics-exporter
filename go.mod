@@ -3,12 +3,15 @@ module sriov-network-metrics-exporter
 go 1.18
 
 require (
+	github.com/hashicorp/go-version v1.6.0
 	github.com/onsi/ginkgo/v2 v2.4.0
 	github.com/onsi/gomega v1.22.1
 	github.com/prometheus/client_golang v1.12.1
+	github.com/safchain/ethtool v0.2.0
 	github.com/vishvananda/netlink v1.1.1-0.20201029203352-d40f9887b852
 	golang.org/x/time v0.0.0-20220210224613-90d013bbcef8
 	google.golang.org/grpc v1.40.0
+	gopkg.in/yaml.v3 v3.0.1
 	k8s.io/kubelet v0.24.3
 )
 
@@ -29,5 +32,4 @@ require (
 	golang.org/x/text v0.4.0 // indirect
 	google.golang.org/genproto v0.0.0-20220107163113-42d7afdf6368 // indirect
 	google.golang.org/protobuf v1.28.0 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
