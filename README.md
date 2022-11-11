@@ -52,6 +52,10 @@ In order to build the container and load it to a local registry run:
 
 ```
 docker build . -t localhost:5000/sriov-metrics-exporter && docker push localhost:5000/sriov-metrics-exporter
+
+or
+
+make docker-build && make docker-push
 ```
 
 The above assumes a registry available across the cluster at localhost:5000, for example on using the [Docker Registry Proxy](https://github.com/kubernetes-sigs/kubespray/blob/master/roles/kubernetes-apps/registry/README.md). If your registry is at a different address the image name will need to be changed to reflect that in the [Kubernetes daemonset](/deployment/daemonset.yaml)
