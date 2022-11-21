@@ -14,6 +14,7 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	v1 "k8s.io/kubelet/pkg/apis/podresources/v1"
 
 	"log"
@@ -130,11 +131,14 @@ func GetV1Client(socket string, connectionTimeout time.Duration, maxMsgSize int)
 	ctx, cancel := context.WithTimeout(context.Background(), connectionTimeout)
 	defer cancel()
 
-	cc, err := grpc.DialContext(ctx, url.Path, grpc.WithInsecure(), grpc.WithContextDialer(dialer), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(maxMsgSize)))
+	conn, err := grpc.DialContext(ctx, url.Path,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithContextDialer(dialer),
+		grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(maxMsgSize)))
 	if err != nil {
 		return nil, nil, fmt.Errorf("error dialing socket %s: %v", socket, err)
 	}
-	return v1.NewPodResourcesListerClient(cc), cc, nil
+	return v1.NewPodResourcesListerClient(conn), conn, nil
 }
 
 func dialer(ctx context.Context, addr string) (net.Conn, error) {
