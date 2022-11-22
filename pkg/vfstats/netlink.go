@@ -16,9 +16,9 @@ type PerPF struct {
 //VfStats returns the stats for all of the SRIOV Virtual Functions attached to the given Physical Function
 func VfStats(pf string) PerPF {
 	output := PerPF{pf, make(map[int]netlink.VfInfo)}
-	lnk, err := netlink.LinkByName(pf)
+	lnk, err := GetLink(pf)
 	if err != nil {
-		log.Printf("netlink: error retrieving link for pf '%s', error: '%v'", pf, err)
+		log.Printf("netlink: error retrieving link for pf '%s'\n%v", pf, err)
 		return output
 	}
 
@@ -28,3 +28,5 @@ func VfStats(pf string) PerPF {
 
 	return output
 }
+
+var GetLink = netlink.LinkByName
