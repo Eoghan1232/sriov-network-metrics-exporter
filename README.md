@@ -45,6 +45,8 @@ Once available through Prometheus VF metrics can be used by metrics applications
 
 ## Installation
 ### Kubernetes installation
+
+#### Building images
 Typical deployment is as a daemonset in a cluster. A daemonset requires the image to be available on each node in the cluster or at a registry accessible from each node.
 The following assumes a local Docker registry available at localhost:5000, and assumes Docker is being used to build and manage containers in the cluster.
 
@@ -59,6 +61,18 @@ make docker-build && make docker-push
 ```
 
 The above assumes a registry available across the cluster at localhost:5000, for example on using the [Docker Registry Proxy](https://github.com/kubernetes-sigs/kubespray/blob/master/roles/kubernetes-apps/registry/README.md). If your registry is at a different address the image name will need to be changed to reflect that in the [Kubernetes daemonset](/deployment/daemonset.yaml)
+
+#### Labeling nodes
+
+SR-IOV Network Metrics Exporter will only be deployed on nodes labeled with `"feature.node.kubernetes.io/network-sriov.capable": "true"` label. You can label the nodes automatically using [Node Feature Discovery](https://github.com/kubernetes-sigs/node-feature-discovery), or manually, executing the following `kubectl` command:
+
+```
+kubectl label node <nodename> feature.node.kubernetes.io/network-sriov.capable="true"
+```
+
+If you prefer to use the `Node Feature Discovery` you can refer to the [Quick-start guide](https://github.com/kubernetes-sigs/node-feature-discovery#quick-start--the-short-short-version) on the project's repository.
+
+#### Deploying SR-IOV Network Metrics Exporter
 
 Create monitoring namespace:
 ```

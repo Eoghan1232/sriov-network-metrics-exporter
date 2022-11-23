@@ -78,6 +78,7 @@ spec:
           mountPath: /etc/sriov-network-metrics-exporter
       nodeSelector:
         kubernetes.io/os: linux
+        feature.node.kubernetes.io/network-sriov.capable: "true"
       restartPolicy: Always
       tolerations:
       - operator: Exists
