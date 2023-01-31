@@ -13,7 +13,7 @@ import (
 	"golang.org/x/time/rate"
 )
 
-func TestLogging(t *testing.T) {
+func TestMain(t *testing.T) {
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "main test suite")
 }

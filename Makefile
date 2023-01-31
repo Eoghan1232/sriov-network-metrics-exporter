@@ -11,17 +11,13 @@ ifdef HTTPS_PROXY
 	DOCKERARGS += --build-arg https_proxy=$(HTTPS_PROXY)
 endif
 
-all: build
+all: build docker-build test 
 
 clean:
 	rm -rf bin
-	go clean --modcache
-
+	go clean -modcache -testcache
+	
 build:
-	go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.45.2
-	go mod tidy
-	go fmt ./...
-	golangci-lint run 
 	GO111MODULE=on go build -ldflags "-s -w" -buildmode=pie -o bin/sriov-exporter cmd/sriov-network-metrics-exporter.go
 
 docker-build:
@@ -30,3 +26,19 @@ docker-build:
 
 docker-push:
 	docker push $(IMAGE_NAME)
+
+test:
+	go test ./... -coverprofile cover.out
+
+test-coverage:
+	ginkgo -v -r -cover -coverprofile=cover.out --output-dir=.
+	go tool cover -html=cover.out	
+
+go-lint:
+	go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.49
+	go mod tidy
+	go fmt ./...
+	golangci-lint run --color always -v ./... 
+
+go-lint-report:
+	golangci-lint run --color always -v ./... &> golangci-lint.txt

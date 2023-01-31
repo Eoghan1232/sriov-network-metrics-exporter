@@ -45,6 +45,7 @@ func ResolvePath(path *string) error {
 
 	evaluatedPath, err := EvalSymlinks(cleanPath)
 	if err != nil {
+		*path = cleanPath
 		return fmt.Errorf("unable to evaluate symbolic links on path '%s'\n%v", *path, err)
 	}
 

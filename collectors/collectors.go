@@ -15,7 +15,8 @@ var (
 	collectorNamespace = "sriov"
 	enabled            = true
 	disabled           = false
-	enabledCollectors  = make(map[string]func() prometheus.Collector)
+	collectorState     = make(map[string]*bool)
+	collectorFunctions = make(map[string]func() prometheus.Collector)
 )
 
 // SriovCollector registers the collectors used for specific data and exposes a Collect method to gather the data
@@ -23,10 +24,10 @@ type SriovCollector []prometheus.Collector
 
 // Register defines a flag for a collector and adds it to the registry of enabled collectors if the flag is set to true - either through the default option or the flag passed on start
 // Run by each individual collector in its init function.
-func register(name string, isDefault bool, collector func() prometheus.Collector) {
-	if enabled := flag.Bool("collector."+name, isDefault, fmt.Sprintf("Enables the %v collector", name)); *enabled {
-		enabledCollectors[name] = collector
-	}
+func register(name string, enabled bool, collector func() prometheus.Collector) {
+	collectorState[name] = &enabled
+	collectorFunctions[name] = collector
+	flag.BoolVar(collectorState[name], "collector."+name, enabled, fmt.Sprintf("Enables the %v collector", name))
 }
 
 // Collect metrics from all enabled collectors in unordered sequence.
@@ -46,9 +47,11 @@ func (s SriovCollector) Describe(ch chan<- *prometheus.Desc) {
 // Enabled adds collectors enabled by default or command line flag to an SriovCollector object
 func Enabled() SriovCollector {
 	collectors := make([]prometheus.Collector, 0)
-	for collectorName, collectorFunc := range enabledCollectors {
-		log.Printf("The %v collector is enabled", collectorName)
-		collectors = append(collectors, collectorFunc())
+	for collector, enabled := range collectorState {
+		if enabled != nil && *enabled {
+			log.Printf("The %v collector is enabled", collector)
+			collectors = append(collectors, collectorFunctions[collector]())
+		}
 	}
 	return collectors
 }

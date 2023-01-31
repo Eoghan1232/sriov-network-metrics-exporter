@@ -33,10 +33,10 @@ type DriversList struct {
 
 type SupportedDrivers struct {
 	Drivers    DriversList
-	dbFilePath string
+	DbFilePath string
 }
 
-func NewSupportedDrivers(fp string) SupportedDrivers {
+var NewSupportedDrivers = func(fp string) SupportedDrivers {
 	retv := SupportedDrivers{}
 	supportedDrivers, err := readSupportedDrivers(fp)
 	if err != nil {
@@ -44,11 +44,11 @@ func NewSupportedDrivers(fp string) SupportedDrivers {
 		return retv
 	}
 	retv.Drivers = *supportedDrivers
-	retv.dbFilePath = fp
+	retv.DbFilePath = fp
 	return retv
 }
 
-func GetDriverInfo(name string) (*DriverInfo, error) {
+var GetDriverInfo = func(name string) (*DriverInfo, error) {
 	ethHandle, err := newEthtool()
 	if err != nil {
 		return nil, err
