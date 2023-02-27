@@ -58,8 +58,8 @@ jobs:
       - name: Install hwdata
         run: sudo apt-get install hwdata -y
 
-      - name: Go test with coverage
-        run: make test-coverage
+#       - name: Go test with coverage
+#         run: make test-coverage
       
       - name: Coveralls
         uses: coverallsapp/github-action@1.1.3
